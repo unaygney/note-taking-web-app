@@ -6,11 +6,13 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from "@trpc/server";
-import superjson from "superjson";
-import { ZodError } from "zod";
+import { TRPCError, initTRPC } from '@trpc/server'
+import superjson from 'superjson'
+import { ZodError } from 'zod'
 
-import { db } from "@/server/db";
+import { rateLimiter } from '@/lib/redis'
+
+import { db } from '@/server/db'
 
 /**
  * 1. CONTEXT
@@ -28,8 +30,8 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   return {
     db,
     ...opts,
-  };
-};
+  }
+}
 
 /**
  * 2. INITIALIZATION
@@ -48,16 +50,16 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
         zodError:
           error.cause instanceof ZodError ? error.cause.flatten() : null,
       },
-    };
+    }
   },
-});
+})
 
 /**
  * Create a server-side caller.
  *
  * @see https://trpc.io/docs/server/server-side-calls
  */
-export const createCallerFactory = t.createCallerFactory;
+export const createCallerFactory = t.createCallerFactory
 
 /**
  * 3. ROUTER & PROCEDURE (THE IMPORTANT BIT)
@@ -71,7 +73,7 @@ export const createCallerFactory = t.createCallerFactory;
  *
  * @see https://trpc.io/docs/router
  */
-export const createTRPCRouter = t.router;
+export const createTRPCRouter = t.router
 
 /**
  * Middleware for timing procedure execution and adding an artificial delay in development.
@@ -80,21 +82,65 @@ export const createTRPCRouter = t.router;
  * network latency that would occur in production but not in local development.
  */
 const timingMiddleware = t.middleware(async ({ next, path }) => {
-  const start = Date.now();
+  const start = Date.now()
 
   if (t._config.isDev) {
     // artificial delay in dev
-    const waitMs = Math.floor(Math.random() * 400) + 100;
-    await new Promise((resolve) => setTimeout(resolve, waitMs));
+    const waitMs = Math.floor(Math.random() * 400) + 100
+    await new Promise((resolve) => setTimeout(resolve, waitMs))
   }
 
-  const result = await next();
+  const result = await next()
 
-  const end = Date.now();
-  console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
+  const end = Date.now()
+  console.log(`[TRPC] ${path} took ${end - start}ms to execute`)
 
-  return result;
-});
+  return result
+})
+
+/**
+ * RATE LIMITING MIDDLEWARE
+ *
+ * This middleware implements rate limiting using Upstash Redis. It restricts
+ * the number of requests a client can make to the API within a specific time window.
+ *
+ * The middleware uses the client's IP address or a custom identifier for rate limiting.
+ * It is useful for preventing abuse and controlling the API usage.
+ *
+ * Prerequisites:
+ * - Redis instance configured with Upstash (https://upstash.com/)
+ * - @upstash/redis package installed
+ * - Redis initialized and available in the context
+ *
+ * Example:
+ * - Sliding window: 5 requests per minute per client.
+ */
+
+export const rateLimitMiddleware = t.middleware(async ({ ctx, next, path }) => {
+  // Extract client IP from headers (use a fallback if not available)
+  const clientIp = ctx.headers.get('x-forwarded-for') ?? 'unknown_client'
+
+  try {
+    // Check rate limit
+    const { success } = await rateLimiter.limit(clientIp)
+
+    if (!success) {
+      throw new TRPCError({
+        code: 'TOO_MANY_REQUESTS',
+        message: `Rate limit exceeded for ${path}. Please try again later.`,
+      })
+    }
+
+    // Proceed with the request
+    return next()
+  } catch (error) {
+    console.error(`[RateLimit] Error for path ${path}:`, error)
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Failed to process the request due to rate limiting.',
+    })
+  }
+})
 
 /**
  * Public (unauthenticated) procedure
@@ -103,4 +149,7 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * guarantee that a user querying is authorized, but you can still access user session data if they
  * are logged in.
  */
-export const publicProcedure = t.procedure.use(timingMiddleware);
+export const publicProcedure = t.procedure.use(timingMiddleware)
+export const publicProcedureWithRateLimit = publicProcedure
+  .use(timingMiddleware)
+  .use(rateLimitMiddleware)
