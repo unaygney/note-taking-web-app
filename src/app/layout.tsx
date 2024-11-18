@@ -1,7 +1,11 @@
 import { GeistSans } from 'geist/font/sans'
 import { type Metadata } from 'next'
+import { Toaster } from 'react-hot-toast'
 
 import { cn } from '@/lib/utils'
+
+import { ThemeProvider } from '@/components/provider'
+import { ModeToggle } from '@/components/theme-mode-toggle'
 
 import { env } from '@/env'
 import '@/styles/globals.css'
@@ -17,13 +21,29 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`scroll-smooth ${GeistSans.variable}`}>
+    <html
+      lang="en"
+      className={`scroll-smooth ${GeistSans.variable}`}
+      suppressHydrationWarning
+    >
       <body
         className={cn('antialiased', {
           'debug-screens': env.NODE_ENV === 'development',
         })}
       >
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+          {/* For testing purposes */}
+          <div className="fixed bottom-10 right-10">
+            <ModeToggle />
+          </div>
+        </ThemeProvider>
+        <Toaster />
       </body>
     </html>
   )
