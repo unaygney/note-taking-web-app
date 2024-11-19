@@ -4,7 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+
+import { type LoginFormSchema, loginFormSchema } from '@/lib/validations'
 
 import AuthHeader from '@/components/auth-header'
 import SigninGoogleButton from '@/components/signin-google-button'
@@ -21,20 +22,15 @@ import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
 
 export default function LoginPage() {
-  const formSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(8),
-  })
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<LoginFormSchema>({
+    resolver: zodResolver(loginFormSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: LoginFormSchema) {
     console.log(values)
   }
 
@@ -89,7 +85,7 @@ export default function LoginPage() {
               </FormItem>
             )}
           />
-          <Button className="w-full" type="submit">
+          <Button size={'lg'} className="w-full" type="submit">
             Login
           </Button>
         </form>
