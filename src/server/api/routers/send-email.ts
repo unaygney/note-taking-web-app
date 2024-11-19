@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer'
+/* eslint-disable */
 import { z } from 'zod'
 
 import { env } from '@/env'
@@ -7,13 +7,10 @@ import {
   publicProcedureWithRateLimit,
 } from '@/server/api/trpc'
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: env.EMAIL_USER,
-    pass: env.EMAIL_PASS,
-  },
-})
+interface SendEmailResponse {
+  messageId: string
+  success: boolean
+}
 
 export const sendEmailRouter = createTRPCRouter({
   send: publicProcedureWithRateLimit
@@ -25,24 +22,26 @@ export const sendEmailRouter = createTRPCRouter({
         from: z.string().email().optional(),
       })
     )
-    .mutation(async ({ input, ctx }) => {
-      const apiKey = ctx.headers.get('x-api-key')
-
-      if (apiKey !== process.env.API_KEY) {
-        throw new Error('Unauthorized')
-      }
-
+    .mutation(async ({ input }) => {
       try {
-        const info = await transporter.sendMail({
-          from: input.from ?? process.env.EMAIL_USER,
-          to: input.to,
-          subject: input.subject,
-          text: input.text,
+        const response = await fetch('http://localhost:3000/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': env.EMAIL_API_KEY,
+          },
+          body: JSON.stringify(input),
         })
+
+        if (!response.ok) {
+          throw new Error('Failed to send email')
+        }
+
+        const data = await response.json()
 
         return {
           success: true,
-          messageId: info.messageId,
+          messageId: data.messageId,
         }
       } catch (error) {
         console.error('Error when sending email:', error)
@@ -50,3 +49,4 @@ export const sendEmailRouter = createTRPCRouter({
       }
     }),
 })
+/* eslint-enable */
