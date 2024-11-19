@@ -1,6 +1,7 @@
 import Link from 'next/link'
 
 import { LatestPost } from '@/components/post'
+import SignoutButton from '@/components/signout-button'
 
 import { HydrateClient, api } from '@/trpc/server'
 
@@ -40,6 +41,7 @@ export default async function Home() {
               </div>
             </Link>
           </div>
+          <SignoutButton />
           <div className="flex flex-col items-center gap-2">
             <p className="text-2xl text-white">
               {hello ? hello.greeting : 'Loading tRPC query...'}
