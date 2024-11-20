@@ -1,10 +1,9 @@
-// Example model schema from the Drizzle docs
-// https://orm.drizzle.team/docs/sql-schema-declaration
-import { sql } from 'drizzle-orm'
+import { relations, sql } from 'drizzle-orm'
 import {
   boolean,
   index,
   integer,
+  pgEnum,
   pgTable,
   pgTableCreator,
   text,
@@ -12,12 +11,6 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core'
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
 export const createTable = pgTableCreator(
   (name) => `note-taking-web-app_${name}`
 )
@@ -48,6 +41,10 @@ export const user = pgTable('user', {
   createdAt: timestamp('createdAt').notNull(),
   updatedAt: timestamp('updatedAt').notNull(),
 })
+
+export const userRelations = relations(user, ({ many }) => ({
+  notes: many(note),
+}))
 
 export const session = pgTable('session', {
   id: text('id').primaryKey(),
@@ -80,3 +77,31 @@ export const verification = pgTable('verification', {
   expiresAt: timestamp('expiresAt').notNull(),
   createdAt: timestamp('createdAt'),
 })
+export const noteStatusEnum = pgEnum('note_status', ['archived', 'active'])
+
+export const note = pgTable('note', {
+  id: text('id').primaryKey(),
+  userId: text('userId')
+    .notNull()
+    .references(() => user.id),
+  title: varchar('title', { length: 256 }).notNull(),
+  tags: text('tags')
+    .array()
+    .notNull()
+    .default(sql`'{}'::text[]`),
+  status: noteStatusEnum('status').notNull().default('active'),
+  content: text('content'),
+  createdAt: timestamp('createdAt')
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp('updatedAt')
+    .default(sql`CURRENT_TIMESTAMP`)
+    .$onUpdate(() => new Date()),
+})
+
+export const noteRelations = relations(note, ({ one }) => ({
+  user: one(user, {
+    fields: [note.userId],
+    references: [user.id],
+  }),
+}))
