@@ -2,9 +2,12 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
 
+import { authClient } from '@/lib/auth-client'
 import { type LoginFormSchema, loginFormSchema } from '@/lib/validations'
 
 import AuthHeader from '@/components/auth-header'
@@ -21,7 +24,10 @@ import {
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/ui/password-input'
 
+import { REDIRECT_TIME } from '@/app/config'
+
 export default function LoginPage() {
+  const router = useRouter()
   const form = useForm<LoginFormSchema>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -30,8 +36,21 @@ export default function LoginPage() {
     },
   })
 
-  function onSubmit(values: LoginFormSchema) {
-    console.log(values)
+  async function onSubmit(values: LoginFormSchema) {
+    const { data, error } = await authClient.signIn.email({
+      email: values.email,
+      password: values.password,
+    })
+
+    if (error) {
+      toast.error(error.message ?? 'An error occurred')
+    }
+    if (data) {
+      toast.success('Logged in successfully')
+      setTimeout(() => {
+        router.push('/')
+      }, REDIRECT_TIME)
+    }
   }
 
   return (

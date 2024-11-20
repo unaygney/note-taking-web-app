@@ -3,7 +3,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import React from 'react'
 import { useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
 
+import { authClient } from '@/lib/auth-client'
 import {
   type ForgotPasswordFormSchema,
   forgotPasswordFormSchema,
@@ -29,8 +31,21 @@ export default function ForgotPasswordPage() {
     },
   })
 
-  function onSubmit(values: ForgotPasswordFormSchema) {
-    console.log(values)
+  async function onSubmit(values: ForgotPasswordFormSchema) {
+    const { data, error } = await authClient.forgetPassword({
+      email: values.email,
+      redirectTo: '/auth/reset-password',
+    })
+
+    if (error) {
+      toast.error(error.message ?? 'An error occurred')
+    }
+    if (data) {
+      toast.success('Reset link sent successfully. Check your email.')
+      form.reset({
+        email: '',
+      })
+    }
   }
 
   return (

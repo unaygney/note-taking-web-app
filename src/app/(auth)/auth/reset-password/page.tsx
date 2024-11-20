@@ -2,9 +2,12 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Info } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
 
+import { authClient } from '@/lib/auth-client'
 import {
   type ResetPasswordFormSchema,
   resetPasswordFormSchema,
@@ -23,7 +26,11 @@ import {
 } from '@/components/ui/form'
 import { PasswordInput } from '@/components/ui/password-input'
 
+import { REDIRECT_TIME } from '@/app/config'
+
 export default function ResetPasswordPage() {
+  const router = useRouter()
+
   const form = useForm<ResetPasswordFormSchema>({
     resolver: zodResolver(resetPasswordFormSchema),
     defaultValues: {
@@ -32,8 +39,25 @@ export default function ResetPasswordPage() {
     },
   })
 
-  function onSubmit(values: ResetPasswordFormSchema) {
-    console.log(values)
+  async function onSubmit(values: ResetPasswordFormSchema) {
+    const { data, error } = await authClient.resetPassword({
+      newPassword: values.password,
+    })
+
+    if (error) {
+      toast.error(error.message ?? 'An error occurred')
+    }
+    if (data) {
+      toast.success('Password reset successfully')
+      form.reset({
+        password: '',
+        rePassword: '',
+      })
+
+      setTimeout(() => {
+        router.push('/auth/login')
+      }, REDIRECT_TIME)
+    }
   }
 
   return (

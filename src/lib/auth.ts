@@ -13,11 +13,11 @@ export const auth = betterAuth({
     enabled: true,
     autoSignIn: true,
     /* eslint-disable @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions */
-    sendResetPassword: async (user, url) => {
+    sendResetPassword: async ({ user, url }) => {
       await api.email.send({
         from: env.EMAIL_USER,
         subject: 'Reset your password',
-        to: user.user.email,
+        to: user.email,
         text: `Click the link to reset your password: ${url}`,
       })
     },
