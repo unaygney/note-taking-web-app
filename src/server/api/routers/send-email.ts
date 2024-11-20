@@ -1,16 +1,13 @@
 /* eslint-disable */
 import { z } from 'zod'
 
+import { getBaseUrl } from '@/lib/utils'
+
 import { env } from '@/env'
 import {
   createTRPCRouter,
   publicProcedureWithRateLimit,
 } from '@/server/api/trpc'
-
-interface SendEmailResponse {
-  messageId: string
-  success: boolean
-}
 
 export const sendEmailRouter = createTRPCRouter({
   send: publicProcedureWithRateLimit
@@ -22,9 +19,9 @@ export const sendEmailRouter = createTRPCRouter({
         from: z.string().email().optional(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       try {
-        const response = await fetch('http://localhost:3000/api/send-email', {
+        const response = await fetch(`${getBaseUrl()}/api/send-email`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -42,6 +39,7 @@ export const sendEmailRouter = createTRPCRouter({
         return {
           success: true,
           messageId: data.messageId,
+          remaining: ctx.remainingRequests,
         }
       } catch (error) {
         console.error('Error when sending email:', error)

@@ -120,26 +120,24 @@ export const rateLimitMiddleware = t.middleware(async ({ ctx, next, path }) => {
   // Extract client IP from headers (use a fallback if not available)
   const clientIp = ctx.headers.get('x-forwarded-for') ?? 'unknown_client'
 
-  try {
-    // Check rate limit
-    const { success } = await rateLimiter.limit(clientIp)
+  // Check rate limit
+  const { success, remaining } = await rateLimiter.limit(clientIp)
 
-    if (!success) {
-      throw new TRPCError({
-        code: 'TOO_MANY_REQUESTS',
-        message: `Rate limit exceeded for ${path}. Please try again later.`,
-      })
-    }
-
-    // Proceed with the request
-    return next()
-  } catch (error) {
-    console.error(`[RateLimit] Error for path ${path}:`, error)
+  if (!success) {
     throw new TRPCError({
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Failed to process the request due to rate limiting.',
+      code: 'TOO_MANY_REQUESTS',
+      message: `Rate limit exceeded for ${path}. Please try again later.`,
     })
   }
+
+  const updatedCtx = {
+    ...ctx,
+    remainingRequests: remaining,
+  }
+
+  return next({
+    ctx: updatedCtx,
+  })
 })
 
 /**
