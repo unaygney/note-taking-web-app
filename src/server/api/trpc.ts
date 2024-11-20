@@ -6,11 +6,15 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
+import { betterFetch } from '@better-fetch/fetch'
 import { TRPCError, initTRPC } from '@trpc/server'
+import type { Session, User } from 'better-auth/types'
+import { cookies } from 'next/headers'
 import superjson from 'superjson'
 import { ZodError } from 'zod'
 
 import { rateLimiter } from '@/lib/redis'
+import { getBaseUrl } from '@/lib/utils'
 
 import { db } from '@/server/db'
 
@@ -116,7 +120,7 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  * - Sliding window: 5 requests per minute per client.
  */
 
-export const rateLimitMiddleware = t.middleware(async ({ ctx, next, path }) => {
+const rateLimitMiddleware = t.middleware(async ({ ctx, next, path }) => {
   // Extract client IP from headers (use a fallback if not available)
   const clientIp = ctx.headers.get('x-forwarded-for') ?? 'unknown_client'
 
@@ -141,6 +145,46 @@ export const rateLimitMiddleware = t.middleware(async ({ ctx, next, path }) => {
 })
 
 /**
+ * AUTHENTICATION MIDDLEWARE
+ *
+ * This middleware ensures that the procedure is only accessible to authenticated users.
+ * It checks if the user is logged in by validating the session or token information.
+ *
+ * If the user is not authenticated, it throws an error.
+ */
+
+type SessionWithUser = {
+  session: Session
+  user: User
+}
+
+const authMiddleware = t.middleware(async ({ next, ctx }) => {
+  const cookieHeader = (await cookies()).toString()
+
+  const { data: session } = await betterFetch<SessionWithUser>(
+    '/api/auth/get-session',
+    {
+      baseURL: getBaseUrl(),
+      headers: { cookie: cookieHeader },
+    }
+  )
+
+  if (!session) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'Invalid session.',
+    })
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      user: session,
+    },
+  })
+})
+
+/**
  * Public (unauthenticated) procedure
  *
  * This is the base piece you use to build new queries and mutations on your tRPC API. It does not
@@ -148,6 +192,8 @@ export const rateLimitMiddleware = t.middleware(async ({ ctx, next, path }) => {
  * are logged in.
  */
 export const publicProcedure = t.procedure.use(timingMiddleware)
+
 export const publicProcedureWithRateLimit = publicProcedure
   .use(timingMiddleware)
   .use(rateLimitMiddleware)
+export const authProcedure = publicProcedureWithRateLimit.use(authMiddleware)
