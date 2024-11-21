@@ -8,7 +8,7 @@ import { authClient } from '@/lib/auth-client'
 
 import { REDIRECT_TIME } from '@/app/config'
 
-import { Button } from './ui/button'
+import { Logout } from './icons'
 
 export default function SignoutButton() {
   const router = useRouter()
@@ -20,5 +20,13 @@ export default function SignoutButton() {
       router.push('/auth/login')
     }, REDIRECT_TIME)
   }
-  return <Button onClick={handleSignout}>Signout</Button>
+  return (
+    <button
+      className={'flex items-center gap-2 rounded-[8px] px-3 py-2.5'}
+      onClick={handleSignout}
+    >
+      <Logout />
+      Signout
+    </button>
+  )
 }

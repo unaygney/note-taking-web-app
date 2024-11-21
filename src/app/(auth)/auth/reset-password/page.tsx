@@ -61,7 +61,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="w-full max-w-[540px] space-y-4 rounded-[16px] border border-neutral-200 bg-white px-4 py-[48px] text-neutral-950 dark:border-neutral-800 dark:bg-neutral-950 dark:text-white">
+    <div className="w-full max-w-[540px] space-y-4 rounded-[16px] border border-neutral-200 bg-white px-4 py-[48px] text-neutral-950 dark:border-neutral-800 dark:bg-neutral-950 dark:text-white md:p-12">
       <AuthHeader
         title="Reset Your Password"
         subtitle="Choose a new password to secure your account."

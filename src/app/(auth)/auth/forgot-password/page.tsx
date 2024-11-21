@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="w-full max-w-[540px] space-y-4 rounded-[16px] border border-neutral-200 bg-white px-4 py-[48px] text-neutral-950 dark:border-neutral-800 dark:bg-neutral-950 dark:text-white">
+    <div className="w-full max-w-[540px] space-y-4 rounded-[16px] border border-neutral-200 bg-white px-4 py-[48px] text-neutral-950 dark:border-neutral-800 dark:bg-neutral-950 dark:text-white md:p-12">
       <AuthHeader
         title="Forgotten your password?"
         subtitle="Enter your email below,and we'll send you a link to reset it."
