@@ -196,4 +196,4 @@ export const publicProcedure = t.procedure.use(timingMiddleware)
 export const publicProcedureWithRateLimit = publicProcedure
   .use(timingMiddleware)
   .use(rateLimitMiddleware)
-export const authProcedure = publicProcedureWithRateLimit.use(authMiddleware)
+export const authProcedure = publicProcedure.use(authMiddleware)

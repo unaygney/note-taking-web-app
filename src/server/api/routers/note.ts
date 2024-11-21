@@ -25,6 +25,7 @@ export const noteRouter = createTRPCRouter({
       })
       return noteData
     }),
+
   delete: authProcedure
     .input(
       z.object({
@@ -32,7 +33,9 @@ export const noteRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.delete(note).where(eq(note.id, input.id))
+      await ctx.db
+        .delete(note)
+        .where(and(eq(note.id, input.id), eq(note.userId, ctx.user.user.id)))
       return { success: true }
     }),
 
@@ -56,7 +59,8 @@ export const noteRouter = createTRPCRouter({
           ...(input.content && { content: input.content }),
           updatedAt: new Date(),
         })
-        .where(eq(note.id, input.id))
+        .where(and(eq(note.id, input.id), eq(note.userId, ctx.user.user.id)))
+
       return updatedNote
     }),
 
@@ -70,7 +74,8 @@ export const noteRouter = createTRPCRouter({
       const noteData = await ctx.db
         .select()
         .from(note)
-        .where(eq(note.id, input.id))
+        .where(and(eq(note.id, input.id), eq(note.userId, ctx.user.user.id)))
+
       return noteData[0]
     }),
 
@@ -101,4 +106,16 @@ export const noteRouter = createTRPCRouter({
 
       return notes
     }),
+
+  getTags: authProcedure.query(async ({ ctx }) => {
+    const tags = await ctx.db
+      .select({
+        tag: sql<string>`unnest(${note.tags})`.as('tag'),
+      })
+      .from(note)
+      .where(eq(note.userId, ctx.user.user.id))
+
+    const uniqueTags = [...new Set(tags.map((row) => row.tag))]
+    return uniqueTags
+  }),
 })
