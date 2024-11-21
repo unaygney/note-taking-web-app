@@ -9,7 +9,7 @@ import { SidebarItem } from '@/components/ui/sidebar-item'
 export default function SettingsPage() {
   return (
     <div className="flex h-full w-full flex-col gap-1 rounded-t-[12px] bg-white px-4 py-6 dark:bg-neutral-950 lg:hidden">
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 text-neutral-950 dark:text-white">
         <SidebarItem
           href="/settings/color-theme"
           text="Color Theme"

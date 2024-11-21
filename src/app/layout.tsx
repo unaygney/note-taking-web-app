@@ -1,7 +1,7 @@
-import { GeistSans } from 'geist/font/sans'
 import { type Metadata } from 'next'
 import { Toaster } from 'react-hot-toast'
 
+import { inter } from '@/lib/font'
 import { cn } from '@/lib/utils'
 
 import { ThemeProvider } from '@/components/provider'
@@ -21,15 +21,15 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      className={`scroll-smooth ${GeistSans.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={`scroll-smooth`} suppressHydrationWarning>
       <body
-        className={cn('antialiased', {
-          'debug-screens': env.NODE_ENV === 'development',
-        })}
+        className={cn(
+          'antialiased',
+          {
+            'debug-screens': env.NODE_ENV === 'development',
+          },
+          inter.className
+        )}
       >
         <ThemeProvider
           attribute="class"
