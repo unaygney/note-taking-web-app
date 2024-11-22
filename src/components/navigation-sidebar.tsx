@@ -32,7 +32,7 @@ function NavigationHeader() {
 function TopItems() {
   return (
     <div className="flex flex-col gap-1 border-b border-b-neutral-200 pb-2 dark:border-b-neutral-800">
-      <SidebarItem icon={<Home />} text="All Notes" href="/" />
+      <SidebarItem icon={<Home />} text="All Notes" href="/all-notes" />
       <SidebarItem
         icon={<ArchiveIcon />}
         text="Archived Notes"

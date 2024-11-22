@@ -6,7 +6,7 @@ import MenuItem from './ui/menu-item'
 export default function MenuBar() {
   const MENU = [
     {
-      href: '/',
+      href: '/all-notes',
       icon: <Home className="h-4 w-4" />,
       label: 'Home',
     },
