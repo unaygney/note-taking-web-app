@@ -108,6 +108,8 @@ export const note = pgTable(
   })
 )
 
+export type Note = typeof note.$inferSelect
+
 export const noteRelations = relations(note, ({ one }) => ({
   user: one(user, {
     fields: [note.userId],
