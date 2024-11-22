@@ -1,7 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 import { z } from 'zod'
@@ -18,6 +18,8 @@ import {
 import { RadioGroup } from '@/components/ui/radio-group'
 import RadioWithLabel from '@/components/ui/radio-with-label'
 
+import { useFont } from '@/context/font-context'
+
 const fontThemeSchema = z.object({
   fontTheme: z.enum(['sans-serif', 'serif', 'monospace']),
 })
@@ -25,19 +27,23 @@ const fontThemeSchema = z.object({
 type FontThemeFormSchema = z.infer<typeof fontThemeSchema>
 
 export default function SettingsFontThemePage() {
+  const { fontTheme, setFontTheme } = useFont()
+
   const form = useForm<FontThemeFormSchema>({
     resolver: zodResolver(fontThemeSchema),
     defaultValues: {
-      fontTheme: 'serif',
+      fontTheme: fontTheme,
     },
   })
 
+  useEffect(() => {
+    form.setValue('fontTheme', fontTheme)
+  }, [fontTheme, form])
+
   const onSubmit = async (data: FontThemeFormSchema) => {
-    console.log('Selected font theme:', data.fontTheme)
-    const sleep = async (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms))
-    await sleep(5000)
+    setFontTheme(data.fontTheme)
     toast.success(`Font theme set to ${data.fontTheme}`)
+    window.location.reload()
   }
 
   return (

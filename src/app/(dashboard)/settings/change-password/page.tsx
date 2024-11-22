@@ -7,6 +7,8 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 import { z } from 'zod'
 
+import { authClient } from '@/lib/auth-client'
+
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -19,18 +21,17 @@ import {
 } from '@/components/ui/form'
 import { PasswordInput } from '@/components/ui/password-input'
 
-// Zod schema for password change
 const changePasswordSchema = z
   .object({
     oldPassword: z
       .string()
-      .min(6, 'Old password must be at least 6 characters'),
+      .min(8, 'Old password must be at least 8 characters'),
     newPassword: z
       .string()
-      .min(6, 'New password must be at least 6 characters'),
+      .min(8, 'New password must be at least 8 characters'),
     confirmNewPassword: z
       .string()
-      .min(6, 'Confirm new password must be at least 6 characters'),
+      .min(8, 'Confirm new password must be at least 8 characters'),
   })
   .refine((data) => data.newPassword === data.confirmNewPassword, {
     message: 'New password and confirmation do not match',
@@ -50,13 +51,22 @@ export default function SettingsChangePasswordPage() {
   })
 
   const onSubmit = async (data: ChangePasswordFormSchema) => {
-    console.log('Old Password:', data.oldPassword)
-    console.log('New Password:', data.newPassword)
-    // Simulate password change operation
-    const sleep = async (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms))
-    await sleep(2000)
-    toast.success('Password changed successfully!')
+    const res = await authClient.changePassword({
+      currentPassword: data.oldPassword,
+      newPassword: data.newPassword,
+      revokeOtherSessions: true,
+    })
+    if (res.error) {
+      toast.error(res.error.message ?? 'An error occurred')
+    }
+    if (res.data) {
+      toast.success('Password changed successfully!')
+      form.reset({
+        oldPassword: '',
+        newPassword: '',
+        confirmNewPassword: '',
+      })
+    }
   }
 
   return (

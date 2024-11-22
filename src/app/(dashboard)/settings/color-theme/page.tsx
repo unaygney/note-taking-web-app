@@ -2,7 +2,8 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eclipse, Sun, SunMoon } from 'lucide-react'
-import React from 'react'
+import { useTheme } from 'next-themes'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 import { z } from 'zod'
@@ -25,19 +26,28 @@ const colorThemeSchema = z.object({
 type ColorThemeFormSchema = z.infer<typeof colorThemeSchema>
 
 export default function SettingsColorThemePage() {
+  const { setTheme, theme } = useTheme()
+
+  const [clientTheme, setClientTheme] = useState<string | undefined>(undefined)
+
   const form = useForm<ColorThemeFormSchema>({
     resolver: zodResolver(colorThemeSchema),
     defaultValues: {
-      colorTheme: 'light',
+      colorTheme: theme as 'light' | 'dark' | 'system' | undefined,
     },
   })
 
   const onSubmit = async (data: ColorThemeFormSchema) => {
-    console.log('Selected color theme:', data.colorTheme)
-    const sleep = async (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms))
-    await sleep(5000)
-    toast.success(`Color theme set to ${data.colorTheme}`)
+    setTheme(data.colorTheme)
+    toast.success('Theme updated successfully')
+  }
+
+  useEffect(() => {
+    setClientTheme(theme)
+  }, [theme])
+
+  if (clientTheme === undefined) {
+    return null
   }
 
   return (

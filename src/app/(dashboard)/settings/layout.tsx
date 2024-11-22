@@ -10,7 +10,7 @@ export default function SettingsLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex w-full">
       <SettingsSidebar />
 
       <div className="flex-1 rounded-t-[12px] bg-white p-8 dark:bg-[#0e121b] lg:rounded-t-none">

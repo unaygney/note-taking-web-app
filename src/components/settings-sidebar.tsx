@@ -8,7 +8,7 @@ import { SidebarItem } from './ui/sidebar-item'
 
 export default function SettingsSidebar() {
   return (
-    <div className="hidden h-screen w-[272px] flex-col border-r border-neutral-200 bg-white py-5 pl-8 pr-4 text-neutral-700 dark:border-r-neutral-800 dark:bg-[#0e121b] dark:text-neutral-200 lg:flex">
+    <div className="hidden h-[calc(100vh-40px)] w-[272px] flex-col border-r border-neutral-200 bg-white py-5 pl-8 pr-4 text-neutral-700 dark:border-r-neutral-800 dark:bg-[#0e121b] dark:text-neutral-200 lg:flex">
       <div className="flex flex-col gap-1">
         <SidebarItem
           href="/settings/color-theme"

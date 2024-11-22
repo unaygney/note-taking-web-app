@@ -1,12 +1,14 @@
 import { type Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { Toaster } from 'react-hot-toast'
 
-import { inter } from '@/lib/font'
+import { inter, notoSerif, sourceCodePro } from '@/lib/font'
 import { cn } from '@/lib/utils'
 
 import { ThemeProvider } from '@/components/provider'
 import { ModeToggle } from '@/components/theme-mode-toggle'
 
+import { FontProvider } from '@/context/font-context'
 import { env } from '@/env'
 import '@/styles/globals.css'
 import { TRPCReactProvider } from '@/trpc/react'
@@ -17,9 +19,15 @@ export const metadata: Metadata = {
   icons: [{ rel: 'icon', url: '/favicon.ico' }],
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const cookieStore = await cookies()
+  const theme = cookieStore.get('font-theme')?.value as
+    | 'sans-serif'
+    | 'serif'
+    | 'monospace'
+
   return (
     <html lang="en" className={`scroll-smooth`} suppressHydrationWarning>
       <body
@@ -28,22 +36,26 @@ export default function RootLayout({
           {
             'debug-screens': env.NODE_ENV === 'development',
           },
-          inter.className
+          theme === 'serif' && `font-serif ${notoSerif.className}`,
+          theme === 'monospace' && `font-mono ${sourceCodePro.className}`,
+          theme === 'sans-serif' && `${inter.className}`
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <TRPCReactProvider>{children}</TRPCReactProvider>
-          {/* For testing purposes */}
-          <div className="fixed bottom-10 right-10">
-            <ModeToggle />
-          </div>
-        </ThemeProvider>
-        <Toaster />
+        <FontProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <TRPCReactProvider>{children}</TRPCReactProvider>
+            {/* For testing purposes */}
+            <div className="fixed bottom-10 right-10">
+              <ModeToggle />
+            </div>
+            <Toaster />
+          </ThemeProvider>
+        </FontProvider>
       </body>
     </html>
   )
