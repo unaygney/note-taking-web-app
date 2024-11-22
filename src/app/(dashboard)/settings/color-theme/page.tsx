@@ -51,7 +51,7 @@ export default function SettingsColorThemePage() {
   }
 
   return (
-    <div className="flex h-full w-full flex-col gap-6">
+    <div className="flex w-full flex-col gap-6">
       <div className="flex flex-col gap-1">
         <h1 className="text-base/normal font-semibold text-neutral-950 dark:text-white">
           Color Theme

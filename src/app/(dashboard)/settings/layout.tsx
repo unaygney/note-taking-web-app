@@ -12,8 +12,7 @@ export default function SettingsLayout({
   return (
     <div className="flex w-full">
       <SettingsSidebar />
-
-      <div className="flex-1 rounded-t-[12px] bg-white p-8 dark:bg-[#0e121b] lg:rounded-t-none">
+      <div className="h-[calc(100vh-40px)] flex-1 rounded-t-[12px] bg-white p-8 dark:bg-[#0e121b] lg:rounded-t-none">
         <BackButton />
         {children}
       </div>
