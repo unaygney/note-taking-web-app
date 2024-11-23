@@ -1,5 +1,6 @@
 'use client'
 
+import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import React from 'react'
@@ -12,7 +13,7 @@ import { ScrollArea } from './ui/scroll-area'
 import { Separator } from './ui/separator'
 import { api } from '@/trpc/react'
 
-export default function SidebarNotes() {
+export default function SidebarNotes({ className }: { className?: string }) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
@@ -40,12 +41,31 @@ export default function SidebarNotes() {
         })
 
   return (
-    <div className="hidden h-screen w-[290px] flex-col gap-4 border-r border-neutral-200 bg-white px-8 py-5 dark:border-neutral-800 dark:bg-[#0e121b] lg:flex">
+    <div
+      className={cn(
+        'hidden h-screen w-[290px] flex-col gap-4 border-r border-neutral-200 bg-white px-8 py-5 dark:border-neutral-800 dark:bg-[#0e121b] lg:flex',
+        className
+      )}
+    >
+      {/* Desktop Create New Note */}
       <Link
-        className={cn(buttonVariants({ variant: 'primary' }))}
+        className={cn(
+          buttonVariants({ variant: 'primary' }),
+          'hidden lg:inline-flex'
+        )}
         href={`/all-notes/create`}
       >
         + Create New Note
+      </Link>
+      {/* Mobile Create New Note */}
+      <Link
+        className={cn(
+          buttonVariants({ variant: 'primary', size: 'icon' }),
+          'fixed bottom-[106px] right-[45px] z-20 h-16 w-16 shrink-0 rounded-full lg:hidden'
+        )}
+        href={`/all-notes/create`}
+      >
+        <Plus />
       </Link>
 
       <Description />

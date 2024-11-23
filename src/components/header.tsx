@@ -13,6 +13,8 @@ export default function Header() {
 
   const getPageTitle = () => {
     const firstPath = pathname?.split('/')[1]
+    const secondPath = pathname?.split('/')[2]
+
     switch (firstPath) {
       case 'search':
         const query = searchParams?.get('q')
@@ -24,7 +26,10 @@ export default function Header() {
         return 'Archived Notes'
       case 'settings':
         return 'Settings'
-      case 'tags':
+      case 'tag':
+        if (secondPath) {
+          return `Notes Tagged: ${decodeURIComponent(secondPath)}`
+        }
         return 'Tags'
       default:
         return 'All Notes'
@@ -32,16 +37,14 @@ export default function Header() {
   }
 
   return (
-    <header className="h-[54px] w-full border-b border-b-neutral-200 bg-neutral-100 px-4 py-[13px] dark:border-b-neutral-800 dark:bg-neutral-800 md:h-[74px] md:px-8 md:py-[23px] lg:h-[81px] lg:bg-white lg:py-[26px] dark:lg:bg-neutral-950">
+    <header className="h-[54px] w-full border-b-neutral-200 bg-neutral-100 px-4 py-[13px] dark:border-b-neutral-800 dark:bg-neutral-800 md:h-[74px] md:px-8 md:py-[23px] lg:h-[81px] lg:border-b lg:bg-white lg:py-[26px] dark:lg:bg-neutral-950">
       <div className="flex h-full w-full items-center justify-between">
         <Link href={'/'} className="lg:hidden">
           <LogoWithText />
         </Link>
-        <h3 className="hidden text-2xl/normal font-bold tracking-[-0.5px] text-neutral-950 dark:text-white lg:block">
+        <h3 className="hidden text-2xl/normal font-bold capitalize tracking-[-0.5px] text-neutral-950 dark:text-white lg:block">
           {getPageTitle()}
         </h3>
-
-        {/* Input Area */}
         <HeaderSearchBar />
       </div>
     </header>

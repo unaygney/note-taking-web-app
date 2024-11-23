@@ -1,4 +1,5 @@
 import { ArchiveIcon, Home, Tag } from 'lucide-react'
+import Link from 'next/link'
 import React from 'react'
 
 import { LogoWithText } from './icons'
@@ -23,9 +24,9 @@ export default async function NavigationSidebar() {
 
 function NavigationHeader() {
   return (
-    <div className="py-3">
+    <Link href={'/all-notes'} className="py-3">
       <LogoWithText />
-    </div>
+    </Link>
   )
 }
 

@@ -6,9 +6,19 @@ import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { useDebounce } from 'use-debounce'
 
+import { cn } from '@/lib/utils'
+
 import { Input } from './ui/input'
 
-export default function HeaderSearchBar() {
+export default function HeaderSearchBar({
+  className,
+  isShowSettingPage = true,
+  inputClassName,
+}: {
+  className?: string
+  isShowSettingPage?: boolean
+  inputClassName?: string
+}) {
   const [search, setSearch] = useState('')
   const [debouncedSearch] = useDebounce(search, 500)
   const router = useRouter()
@@ -25,8 +35,8 @@ export default function HeaderSearchBar() {
   }
 
   return (
-    <div className="hidden items-center gap-4 lg:flex">
-      <div className="relative w-[300px]">
+    <div className={cn('hidden items-center gap-4 lg:flex', className)}>
+      <div className={cn('relative w-[300px]', inputClassName)}>
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -41,9 +51,11 @@ export default function HeaderSearchBar() {
           <Search className="h-5 w-5 text-neutral-400" />
         </button>
       </div>
-      <Link href={'/settings'}>
-        <Settings className="h-6 w-6 text-neutral-400" />
-      </Link>
+      {isShowSettingPage && (
+        <Link href={'/settings'}>
+          <Settings className="h-6 w-6 text-neutral-400" />
+        </Link>
+      )}
     </div>
   )
 }

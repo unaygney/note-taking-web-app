@@ -1,6 +1,15 @@
 'use client'
 
-import { Clock, Tag } from 'lucide-react'
+import {
+  Archive,
+  ChevronLeft,
+  Clock,
+  RotateCcw,
+  Tag,
+  Trash2,
+} from 'lucide-react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import React from 'react'
 
 import { Button } from './ui/button'
@@ -57,5 +66,34 @@ export default function NoteContent({ note }: { note: Note }) {
 }
 
 function NoteTopHeader() {
-  return <div className="flex lg:hidden">note top header</div>
+  const pathname = usePathname()
+  const rootPath = pathname.split('/')[1]
+
+  return (
+    <div className="flex items-center justify-between border-b border-neutral-200 bg-white pb-3 text-neutral-600 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-300 lg:hidden">
+      <Link className="inline-flex items-center gap-1" href={`/${rootPath}`}>
+        <ChevronLeft className="h-4 w-4" />
+        Go Back
+      </Link>
+
+      <div className="flex items-center gap-4">
+        <button>
+          <Trash2 className="h-[18px] w-[18px]" />
+        </button>
+
+        {rootPath === 'archived-notes' ? (
+          <button>
+            <RotateCcw className="h-[18px] w-[18px]" />
+          </button>
+        ) : (
+          <button>
+            <Archive className="h-[18px] w-[18px]" />
+          </button>
+        )}
+
+        <button className="text-sm font-normal">Cancel</button>
+        <button className="text-sm font-normal text-blue-500">Save Note</button>
+      </div>
+    </div>
+  )
 }

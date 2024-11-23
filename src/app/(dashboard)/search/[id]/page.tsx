@@ -5,7 +5,7 @@ import NoteContent from '@/components/note-content'
 
 import { api } from '@/trpc/server'
 
-export default async function TagIdPage({
+export default async function SearchPageDetail({
   params,
 }: {
   params: Promise<{ id: string }>
@@ -15,6 +15,7 @@ export default async function TagIdPage({
   const note = await api.note.get({ id: id })
 
   if (!note) notFound()
+
   return (
     <div className="h-full w-full">
       <NoteContent note={note} />
