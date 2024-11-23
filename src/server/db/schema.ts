@@ -45,10 +45,12 @@ export const user = pgTable('user', {
 export const userRelations = relations(user, ({ many }) => ({
   notes: many(note),
 }))
-
 export const session = pgTable('session', {
   id: text('id').primaryKey(),
   expiresAt: timestamp('expiresAt').notNull(),
+  token: text('token').notNull().unique(),
+  createdAt: timestamp('createdAt').notNull(),
+  updatedAt: timestamp('updatedAt').notNull(),
   ipAddress: text('ipAddress'),
   userAgent: text('userAgent'),
   userId: text('userId')
@@ -66,8 +68,12 @@ export const account = pgTable('account', {
   accessToken: text('accessToken'),
   refreshToken: text('refreshToken'),
   idToken: text('idToken'),
-  expiresAt: timestamp('expiresAt'),
+  accessTokenExpiresAt: timestamp('accessTokenExpiresAt'),
+  refreshTokenExpiresAt: timestamp('refreshTokenExpiresAt'),
+  scope: text('scope'),
   password: text('password'),
+  createdAt: timestamp('createdAt').notNull(),
+  updatedAt: timestamp('updatedAt').notNull(),
 })
 
 export const verification = pgTable('verification', {
@@ -76,7 +82,9 @@ export const verification = pgTable('verification', {
   value: text('value').notNull(),
   expiresAt: timestamp('expiresAt').notNull(),
   createdAt: timestamp('createdAt'),
+  updatedAt: timestamp('updatedAt'),
 })
+
 export const noteStatusEnum = pgEnum('note_status', ['archived', 'active'])
 
 export const note = pgTable(
@@ -105,6 +113,10 @@ export const note = pgTable(
     titleIndex: index('title_idx').on(note.title),
     tagsGinIndex: index('tags_gin_idx').using('gin', sql`${note.tags}`),
     statusIndex: index('status_idx').on(note.status),
+    contentGinIndex: index('content_gin_idx').using(
+      'gin',
+      sql`to_tsvector('english', ${note.content})`
+    ),
   })
 )
 

@@ -22,6 +22,27 @@
       "when": 1732193328968,
       "tag": "0002_charming_naoko",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1732355657351,
+      "tag": "0003_magenta_mentallo",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1732360449677,
+      "tag": "0004_soft_naoko",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1732360509960,
+      "tag": "0005_tidy_gorgon",
+      "breakpoints": true
     }
   ]
 }

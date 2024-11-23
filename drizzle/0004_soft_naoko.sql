@@ -1,0 +1,2 @@
+CREATE INDEX IF NOT EXISTS "content_gin_idx" ON "note" USING gin (to_tsvector('english', "content"));--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "content_trgm_idx" ON "note" USING gin (("content") gin_trgm_ops);
