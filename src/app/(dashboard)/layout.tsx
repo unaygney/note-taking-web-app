@@ -1,4 +1,3 @@
-import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import React from 'react'
 
 import Header from '@/components/header'
@@ -15,14 +14,11 @@ export default async function DashboardLayout({
 }) {
   return (
     <HydrateClient>
-      <div className="flex h-screen flex-col overflow-hidden bg-neutral-100 text-white dark:bg-neutral-700 lg:flex-row">
+      <div className="flex min-h-screen flex-col bg-neutral-100 text-white dark:bg-neutral-700 lg:h-screen lg:flex-row lg:overflow-hidden">
         <NavigationSidebar />
         <div className="flex-1">
-          <NuqsAdapter>
-            <Header />
-
-            {children}
-          </NuqsAdapter>
+          <Header />
+          {children}
         </div>
         <VerificationBar />
         <MenuBar />

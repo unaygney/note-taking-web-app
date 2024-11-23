@@ -3,13 +3,14 @@
 import { Search, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useQueryState } from 'nuqs'
-import React from 'react'
+import React, { useState } from 'react'
+import { useDebounce } from 'use-debounce'
 
 import { Input } from './ui/input'
 
 export default function HeaderSearchBar() {
-  const [search, setSearch] = useQueryState('q')
+  const [search, setSearch] = useState('')
+  const [debouncedSearch] = useDebounce(search, 500)
   const router = useRouter()
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -18,8 +19,8 @@ export default function HeaderSearchBar() {
     }
   }
   const handleSearchClick = () => {
-    if (search) {
-      router.push(`/search?q=${search}`)
+    if (debouncedSearch) {
+      router.push(`/search?q=${debouncedSearch}`)
     }
   }
 
@@ -27,7 +28,7 @@ export default function HeaderSearchBar() {
     <div className="hidden items-center gap-4 lg:flex">
       <div className="relative w-[300px]">
         <Input
-          value={search ?? ''}
+          value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={handleKeyDown}
           className="w-full pl-10 text-neutral-950 dark:text-white"

@@ -1,4 +1,4 @@
-import { and, eq, like, sql } from 'drizzle-orm'
+import { and, eq, ilike, sql } from 'drizzle-orm'
 import { z } from 'zod'
 
 import { authProcedure, createTRPCRouter } from '@/server/api/trpc'
@@ -84,19 +84,27 @@ export const noteRouter = createTRPCRouter({
       z.object({
         title: z.string().optional(),
         tags: z.array(z.string()).optional(),
+        content: z.string().optional(),
       })
     )
     .query(async ({ ctx, input }) => {
-      const conditions = [eq(note.userId, ctx.user.user.id)]
+      const conditions = [
+        eq(note.userId, ctx.user.user.id),
+        eq(note.status, 'active'),
+      ]
 
       if (input.title) {
-        conditions.push(like(note.title, `%${input.title}%`))
+        conditions.push(ilike(note.title, `%${input.title.toLowerCase()}%`))
       }
 
       if (input.tags && input.tags.length > 0) {
         conditions.push(
           sql`${note.tags} && ARRAY[${sql.join(input.tags)}]::text[]`
         )
+      }
+
+      if (input.content) {
+        conditions.push(ilike(note.content, `%${input.content.toLowerCase()}%`))
       }
 
       const notes = await ctx.db
@@ -117,5 +125,16 @@ export const noteRouter = createTRPCRouter({
 
     const uniqueTags = [...new Set(tags.map((row) => row.tag))]
     return uniqueTags
+  }),
+
+  getArchived: authProcedure.query(async ({ ctx }) => {
+    const archivedNotes = await ctx.db
+      .select()
+      .from(note)
+      .where(
+        and(eq(note.userId, ctx.user.user.id), eq(note.status, 'archived'))
+      )
+
+    return archivedNotes
   }),
 })

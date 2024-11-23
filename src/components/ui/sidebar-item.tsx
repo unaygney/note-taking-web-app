@@ -21,6 +21,7 @@ export function SidebarItem({
   const isActive = pathname === href
   return (
     <Link
+      prefetch={true}
       href={href}
       className={cn('flex items-center gap-2 rounded-[8px] px-3 py-2.5', {
         'bg-neutral-100 dark:bg-neutral-800': isActive,

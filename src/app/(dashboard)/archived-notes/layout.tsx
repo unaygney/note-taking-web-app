@@ -3,7 +3,7 @@ import React from 'react'
 import SidebarNotes from '@/components/sidebar-notes'
 import SidebarRightMenu from '@/components/sidebar-right-menu'
 
-export default function AllNotesLayout({
+export default function ArhviedNotesLayout({
   children,
 }: {
   children: React.ReactNode

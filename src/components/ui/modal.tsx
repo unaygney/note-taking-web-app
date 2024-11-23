@@ -1,7 +1,4 @@
-'use client'
-
-/* eslint-disable @typescript-eslint/consistent-type-imports  */
-import { Dispatch, ReactNode, SetStateAction } from 'react'
+import { type Dispatch, type ReactNode, type SetStateAction } from 'react'
 import { Drawer } from 'vaul'
 
 import { cn } from '@/lib/utils'
@@ -23,8 +20,10 @@ export const Modal = ({
   children,
   className,
   desktopOnly,
-  onClose,
-  preventDefaultClose,
+  /* eslint-disable @typescript-eslint/no-empty-function */
+  onClose = () => {},
+  /* eslint-enable @typescript-eslint/no-empty-function */
+  preventDefaultClose = false,
   setShowModal,
   showModal,
 }: ModalProps) => {
@@ -33,12 +32,12 @@ export const Modal = ({
       return
     }
 
-    if (onClose) {
-      onClose()
-    }
+    onClose()
 
     if (setShowModal) {
       setShowModal(false)
+    } else {
+      console.warn('setShowModal is undefined, modal cannot be closed.')
     }
   }
 
@@ -47,7 +46,7 @@ export const Modal = ({
   if (isMobile && !desktopOnly) {
     return (
       <Drawer.Root
-        open={setShowModal ? showModal : true}
+        open={showModal ?? true}
         onOpenChange={(open) => {
           if (!open) {
             closeModal({ dragged: true })
@@ -75,7 +74,7 @@ export const Modal = ({
 
   return (
     <Dialog
-      open={setShowModal ? showModal : true}
+      open={showModal ?? true}
       onOpenChange={(open) => {
         if (!open) {
           closeModal({ dragged: true })
