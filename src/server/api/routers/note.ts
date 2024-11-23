@@ -29,7 +29,7 @@ export const noteRouter = createTRPCRouter({
   delete: authProcedure
     .input(
       z.object({
-        id: z.string().uuid(),
+        id: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -42,7 +42,7 @@ export const noteRouter = createTRPCRouter({
   update: authProcedure
     .input(
       z.object({
-        id: z.string().uuid(),
+        id: z.string(),
         title: z.string().optional(),
         tags: z.array(z.string()).optional(),
         status: z.enum(['archived', 'active']).optional(),
@@ -67,7 +67,7 @@ export const noteRouter = createTRPCRouter({
   get: authProcedure
     .input(
       z.object({
-        id: z.string().uuid(),
+        id: z.string(),
       })
     )
     .query(async ({ ctx, input }) => {

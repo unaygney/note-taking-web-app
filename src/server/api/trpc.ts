@@ -6,10 +6,7 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { betterFetch } from '@better-fetch/fetch'
 import { TRPCError, initTRPC } from '@trpc/server'
-import type { Session, User } from 'better-auth/types'
-import { cookies } from 'next/headers'
 import superjson from 'superjson'
 import { ZodError } from 'zod'
 
@@ -153,35 +150,56 @@ const rateLimitMiddleware = t.middleware(async ({ ctx, next, path }) => {
  * If the user is not authenticated, it throws an error.
  */
 
-type SessionWithUser = {
-  session: Session
-  user: User
+interface SessionWithUser {
+  session: {
+    id: string
+    expiresAt: string
+    token: string
+    createdAt: string
+    updatedAt: string
+    ipAddress: string
+    userAgent: string
+    userId: string
+  }
+  user: {
+    id: string
+    name: string
+    email: string
+    emailVerified: boolean
+    image: string | null
+    createdAt: string
+    updatedAt: string
+  }
 }
 
 const authMiddleware = t.middleware(async ({ next, ctx }) => {
-  const cookieHeader = (await cookies()).toString()
+  try {
+    const res: Response = await fetch(`${getBaseUrl()}/api/auth/get-session`, {
+      headers: { cookie: ctx.headers.get('cookie') ?? '' },
+    })
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const session: SessionWithUser = await res.json()
 
-  const { data: session } = await betterFetch<SessionWithUser>(
-    '/api/auth/get-session',
-    {
-      baseURL: getBaseUrl(),
-      headers: { cookie: cookieHeader },
+    if (!session) {
+      throw new TRPCError({
+        code: 'UNAUTHORIZED',
+        message: 'Invalid session.',
+      })
     }
-  )
 
-  if (!session) {
+    return next({
+      ctx: {
+        ...ctx,
+        user: session,
+      },
+    })
+  } catch (error) {
+    console.error('Error fetching session:', error)
     throw new TRPCError({
       code: 'UNAUTHORIZED',
-      message: 'Invalid session.',
+      message: 'Failed to authenticate user.',
     })
   }
-
-  return next({
-    ctx: {
-      ...ctx,
-      user: session,
-    },
-  })
 })
 
 /**
