@@ -4,6 +4,7 @@ import {
   Archive,
   ChevronLeft,
   Clock,
+  Loader,
   RotateCcw,
   Tag,
   Trash2,
@@ -21,9 +22,13 @@ import { type Note } from '@/server/db/schema'
 import { api } from '@/trpc/react'
 
 export default function NoteContent({ note }: { note: Note }) {
+  const pathname = usePathname()
+
   const [content, setContent] = useState(note.content ?? '')
   const [originalContent, setOriginalContent] = useState(note.content ?? '')
   const [isEditing, setIsEditing] = useState(false)
+
+  const isArhivedPage = pathname.split('/')[1] === 'archived-notes'
 
   const utils = api.useUtils()
 
@@ -69,6 +74,17 @@ export default function NoteContent({ note }: { note: Note }) {
               {note?.tags.join(', ')}
             </p>
           </div>
+          {isArhivedPage && (
+            <div className="flex">
+              <div className="flex gap-1.5">
+                <Loader className="h-4 w-4" />
+                <h6 className="w-[115px] text-xs font-normal">Status</h6>
+              </div>
+              <p className="text-xs font-normal">
+                {note.status === 'archived' && 'Archived'}
+              </p>
+            </div>
+          )}
           <div className="flex">
             <div className="flex gap-1.5">
               <Clock className="h-4 w-4" />
@@ -84,8 +100,8 @@ export default function NoteContent({ note }: { note: Note }) {
           <Textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            onClick={() => setIsEditing(true)} // Kullanıcı ilk tıkladığında edit moduna geç
-            readOnly={!isEditing} // Sadece edit modunda düzenlenebilir
+            onClick={() => setIsEditing(true)}
+            readOnly={!isEditing}
             placeholder="Start typing your note here..."
             className={`h-full resize-none text-sm font-normal ${
               isEditing ? 'border border-blue-500' : 'border-none'
@@ -102,7 +118,7 @@ export default function NoteContent({ note }: { note: Note }) {
           <Button
             variant="secondary"
             onClick={handleCancel}
-            disabled={content.trim() === originalContent.trim()} // Değişiklik yoksa disabled
+            disabled={content.trim() === originalContent.trim()}
           >
             Cancel
           </Button>
