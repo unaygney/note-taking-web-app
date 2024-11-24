@@ -15,15 +15,18 @@ export const noteRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const noteData = await ctx.db.insert(note).values({
-        id: crypto.randomUUID(),
-        userId: ctx.user.user.id,
-        title: input.title,
-        tags: input.tags,
-        status: input.status,
-        content: input.content ?? '',
-      })
-      return noteData
+      const noteData = await ctx.db
+        .insert(note)
+        .values({
+          id: crypto.randomUUID(),
+          userId: ctx.user.user.id,
+          title: input.title,
+          tags: input.tags,
+          status: input.status,
+          content: input.content ?? '',
+        })
+        .returning()
+      return noteData[0]
     }),
 
   delete: authProcedure
