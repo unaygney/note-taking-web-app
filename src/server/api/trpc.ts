@@ -6,7 +6,9 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
+import { betterFetch } from '@better-fetch/fetch'
 import { TRPCError, initTRPC } from '@trpc/server'
+import { type Session } from 'better-auth'
 import superjson from 'superjson'
 import { ZodError } from 'zod'
 
@@ -28,8 +30,18 @@ import { db } from '@/server/db'
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
+  const { data: session } = await betterFetch<Session>(
+    '/api/auth/get-session',
+    {
+      baseURL: getBaseUrl(),
+      headers: {
+        cookie: opts.headers.get('cookie') ?? '',
+      },
+    }
+  )
   return {
     db,
+    session,
     ...opts,
   }
 }
@@ -150,56 +162,19 @@ const rateLimitMiddleware = t.middleware(async ({ ctx, next, path }) => {
  * If the user is not authenticated, it throws an error.
  */
 
-interface SessionWithUser {
-  session: {
-    id: string
-    expiresAt: string
-    token: string
-    createdAt: string
-    updatedAt: string
-    ipAddress: string
-    userAgent: string
-    userId: string
-  }
-  user: {
-    id: string
-    name: string
-    email: string
-    emailVerified: boolean
-    image: string | null
-    createdAt: string
-    updatedAt: string
-  }
-}
-
 const authMiddleware = t.middleware(async ({ next, ctx }) => {
-  try {
-    const res: Response = await fetch(`${getBaseUrl()}/api/auth/get-session`, {
-      headers: { cookie: ctx.headers.get('cookie') ?? '' },
-    })
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const session: SessionWithUser = await res.json()
-
-    if (!session) {
-      throw new TRPCError({
-        code: 'UNAUTHORIZED',
-        message: 'Invalid session.',
-      })
-    }
-
-    return next({
-      ctx: {
-        ...ctx,
-        user: session,
-      },
-    })
-  } catch (error) {
-    console.error('Error fetching session:', error)
+  if (!ctx.session) {
     throw new TRPCError({
       code: 'UNAUTHORIZED',
-      message: 'Failed to authenticate user.',
+      message: 'You must be logged in to access this resource.',
     })
   }
+
+  return next({
+    ctx: {
+      session: ctx.session,
+    },
+  })
 })
 
 /**
