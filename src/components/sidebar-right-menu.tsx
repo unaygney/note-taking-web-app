@@ -64,6 +64,12 @@ export default function SidebarRightMenu() {
     setRestoreModal(false)
   }
 
+  if (pathname === '/all-notes/create') {
+    return (
+      <div className="hidden h-screen w-[290px] flex-col gap-4 border-l border-l-neutral-200 bg-white px-8 py-5 dark:border-l-neutral-800 dark:bg-[#0e121b] lg:flex"></div>
+    )
+  }
+
   return (
     <div className="hidden h-screen w-[290px] flex-col gap-4 border-l border-l-neutral-200 bg-white px-8 py-5 dark:border-l-neutral-800 dark:bg-[#0e121b] lg:flex">
       <div className="flex flex-col gap-3">

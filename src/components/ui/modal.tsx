@@ -1,3 +1,4 @@
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { type Dispatch, type ReactNode, type SetStateAction } from 'react'
 import { Drawer } from 'vaul'
 
@@ -81,7 +82,9 @@ export const Modal = ({
         }
       }}
     >
-      <DialogTitle className="sr-only">Dialog</DialogTitle>
+      <DialogTitle>
+        <VisuallyHidden>Dialog Title</VisuallyHidden>
+      </DialogTitle>
       <DialogContent className={className}>{children}</DialogContent>
     </Dialog>
   )
