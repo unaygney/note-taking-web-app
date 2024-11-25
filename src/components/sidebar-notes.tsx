@@ -27,11 +27,20 @@ export default function SidebarNotes({ className }: { className?: string }) {
 
   const tags = tag ? [tag] : undefined
 
-  const [notes] = isSearchPage
-    ? api.note.getAll.useSuspenseQuery()
+  const {
+    data: notes,
+    isLoading,
+    isError,
+  } = isSearchPage
+    ? api.note.getAll.useQuery()
     : isArchivedPage
-      ? api.note.getArchived.useSuspenseQuery()
-      : api.note.getAll.useSuspenseQuery()
+      ? api.note.getArchived.useQuery()
+      : api.note.getAll.useQuery()
+
+  if (isLoading) return <div>Loading...</div>
+  if (isError) {
+    return <div>Error: </div>
+  }
 
   return (
     <div
@@ -64,13 +73,12 @@ export default function SidebarNotes({ className }: { className?: string }) {
       <Description />
 
       <ScrollArea className="flex flex-col gap-1 pb-16">
-        {notes.length === 0 ? (
+        {!notes || notes.length === 0 ? (
           <EmptySidebarNotes />
         ) : (
-          notes.map((note, i) => (
+          notes?.map((note, i) => (
             <div key={note.id}>
               <Link
-                prefetch={true}
                 href={
                   isTagPage
                     ? `/tag/${tag}/${note.id}`
