@@ -6,7 +6,6 @@ import { inter, notoSerif, sourceCodePro } from '@/lib/font'
 import { cn } from '@/lib/utils'
 
 import { ThemeProvider } from '@/components/provider'
-import { ModeToggle } from '@/components/theme-mode-toggle'
 
 import { FontProvider } from '@/context/font-context'
 import { env } from '@/env'
@@ -49,10 +48,6 @@ export default async function RootLayout({
             disableTransitionOnChange
           >
             <TRPCReactProvider>{children}</TRPCReactProvider>
-            {/* For testing purposes */}
-            <div className="fixed bottom-10 right-10">
-              <ModeToggle />
-            </div>
             <Toaster />
           </ThemeProvider>
         </FontProvider>

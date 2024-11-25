@@ -25,22 +25,15 @@ export default function SidebarNotes({ className }: { className?: string }) {
   const isSearchPage = rootPage === 'search'
   const tag = isTagPage ? pathname.split('/')[2] : undefined
 
-  const tags = tag ? [tag] : undefined
-
-  const {
-    data: notes,
-    isLoading,
-    isError,
-  } = isSearchPage
-    ? api.note.getAll.useQuery()
+  const { data: notes } = isSearchPage
+    ? api.note.getAll.useQuery({ title: q, content: q, tags: tag ? [tag] : [] })
     : isArchivedPage
       ? api.note.getArchived.useQuery()
-      : api.note.getAll.useQuery()
-
-  if (isLoading) return <div>Loading...</div>
-  if (isError) {
-    return <div>Error: </div>
-  }
+      : api.note.getAll.useQuery({
+          title: q,
+          content: q,
+          tags: tag ? [tag] : [],
+        })
 
   return (
     <div
