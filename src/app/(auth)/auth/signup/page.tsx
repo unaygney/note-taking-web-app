@@ -106,19 +106,16 @@ export default function SignupPage() {
             )}
           />
           <Button size={'lg'} className="w-full" type="submit">
-            Login
+            Sign Up
           </Button>
         </form>
       </Form>
       <SigninGoogleButton />
       <div className="flex justify-center">
         <span className="text-sm font-normal leading-5 tracking-[-0.2px] text-neutral-600 dark:text-neutral-300">
-          No account yet?{' '}
-          <Link
-            className="text-neutral-950 dark:text-white"
-            href="/auth/signup"
-          >
-            Sign Up
+          Already have an account?
+          <Link className="text-neutral-950 dark:text-white" href="/auth/login">
+            Login
           </Link>
         </span>
       </div>

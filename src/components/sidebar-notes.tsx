@@ -90,11 +90,11 @@ export default function SidebarNotes({ className }: { className?: string }) {
                       : `/${rootPage}/${note.id}`),
                 })}
               >
-                <h3 className="text-base font-semibold tracking-[-0.3px] text-neutral-950 dark:text-white">
+                <h3 className="truncate text-base font-semibold tracking-[-0.3px] text-neutral-950 dark:text-white">
                   {note.title}
                 </h3>
                 <div className="flex gap-1">
-                  {note.tags.map((tag) => (
+                  {note.tags.slice(0, 3).map((tag) => (
                     <Badge key={tag}>{tag}</Badge>
                   ))}
                 </div>

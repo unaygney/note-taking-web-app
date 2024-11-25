@@ -30,7 +30,7 @@ export default function SidebarRightMenu() {
   })
   const deleteNote = api.note.delete.useMutation({
     onSuccess: async () => {
-      await utils.note.invalidate()
+      await utils.note.getTags.invalidate()
     },
   })
 
