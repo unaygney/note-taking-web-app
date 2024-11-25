@@ -12,8 +12,6 @@ experience across devices.
 
 ---
 
----
-
 ## Table of Contents
 
 - [The Challenge](#the-challenge)
