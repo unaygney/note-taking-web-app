@@ -8,11 +8,9 @@
  */
 import { betterFetch } from '@better-fetch/fetch'
 import { TRPCError, initTRPC } from '@trpc/server'
-import { cookies, headers } from 'next/headers'
 import superjson from 'superjson'
 import { ZodError } from 'zod'
 
-import { auth } from '@/lib/auth'
 import { rateLimiter } from '@/lib/redis'
 import { getBaseUrl } from '@/lib/utils'
 
@@ -36,7 +34,7 @@ import { db } from '@/server/db'
 export type Session = {
   id: string
   userId: string
-  createdAt: string // ISO formatında tarih
+  createdAt: string
   updatedAt: string
   expiresAt: string
   token: string
@@ -69,29 +67,6 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
       },
     }
   )
-
-  // const session = {
-  //   session: {
-  //     id: 'N6yhLSDYe1iWRfsmI4t8p',
-  //     expiresAt: '2024-12-02T12:45:46.760Z',
-  //     token: 'F9PPOubQrnkJa_FkwEsSVsHVWLxgCwlI',
-  //     createdAt: '2024-11-25T12:45:46.761Z',
-  //     updatedAt: '2024-11-25T12:45:46.761Z',
-  //     ipAddress: '::1',
-  //     userAgent:
-  //       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-  //     userId: 'EVqiA0jabJTG0q_-DYGmC',
-  //   },
-  //   user: {
-  //     id: 'EVqiA0jabJTG0q_-DYGmC',
-  //     name: '',
-  //     email: 'mesafe18@hotmail.com',
-  //     emailVerified: false,
-  //     image: null,
-  //     createdAt: '2024-11-24T14:43:36.421Z',
-  //     updatedAt: '2024-11-24T14:43:36.421Z',
-  //   },
-  // }
 
   return {
     db,

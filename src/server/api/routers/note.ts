@@ -82,13 +82,41 @@ export const noteRouter = createTRPCRouter({
       return noteData[0]
     }),
 
-  getAll: authProcedure.query(async ({ ctx }) => {
-    const notes = await ctx.db
-      .select()
-      .from(note)
-      .where(eq(note.userId, ctx.session.userId))
-    return notes
-  }),
+  getAll: authProcedure
+    .input(
+      z.object({
+        title: z.string().optional(),
+        tags: z.array(z.string()).optional(),
+        content: z.string().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const conditions = [
+        eq(note.userId, ctx.session.userId),
+        eq(note.status, 'active'),
+      ]
+
+      if (input.title) {
+        conditions.push(ilike(note.title, `%${input.title.toLowerCase()}%`))
+      }
+
+      if (input.tags && input.tags.length > 0) {
+        conditions.push(
+          sql`${note.tags} && ARRAY[${sql.join(input.tags)}]::text[]`
+        )
+      }
+
+      if (input.content) {
+        conditions.push(ilike(note.content, `%${input.content.toLowerCase()}%`))
+      }
+
+      const notes = await ctx.db
+        .select()
+        .from(note)
+        .where(and(...conditions.filter(Boolean)))
+
+      return notes
+    }),
 
   getTags: authProcedure.query(async ({ ctx }) => {
     const tags = await ctx.db
