@@ -42,7 +42,7 @@ Users can:
 
 ## Screenshot
 
-![Preview](/preview.jpg)
+![Preview](./public/preview.jpg)
 
 ---
 
