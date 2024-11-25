@@ -28,17 +28,10 @@ export default function SidebarNotes({ className }: { className?: string }) {
   const tags = tag ? [tag] : undefined
 
   const [notes] = isSearchPage
-    ? api.note.getAll.useSuspenseQuery({
-        title: q?.toLowerCase(),
-        content: q?.toLowerCase(),
-      })
+    ? api.note.getAll.useSuspenseQuery()
     : isArchivedPage
       ? api.note.getArchived.useSuspenseQuery()
-      : api.note.getAll.useSuspenseQuery({
-          tags: tags,
-          title: q?.toLowerCase(),
-          content: q?.toLowerCase(),
-        })
+      : api.note.getAll.useSuspenseQuery()
 
   return (
     <div

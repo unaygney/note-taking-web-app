@@ -8,7 +8,6 @@
  */
 import { betterFetch } from '@better-fetch/fetch'
 import { TRPCError, initTRPC } from '@trpc/server'
-import { type Session } from 'better-auth'
 import superjson from 'superjson'
 import { ZodError } from 'zod'
 
@@ -28,9 +27,38 @@ import { db } from '@/server/db'
  * wrap this and provides the required context.
  *
  * @see https://trpc.io/docs/server/context
+ *
+ *
  */
+
+export type Session = {
+  id: string
+  userId: string
+  createdAt: string // ISO formatında tarih
+  updatedAt: string
+  expiresAt: string
+  token: string
+  ipAddress?: string | null
+  userAgent?: string | null
+}
+
+export type User = {
+  id: string
+  name: string
+  email: string
+  emailVerified: boolean
+  image: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export type ContextSession = {
+  session: Session
+  user: User
+}
+
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const { data: session } = await betterFetch<Session>(
+  const { data: sessionData } = await betterFetch<ContextSession>(
     '/api/auth/get-session',
     {
       baseURL: getBaseUrl(),
@@ -39,9 +67,10 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
       },
     }
   )
+
   return {
     db,
-    session,
+    session: sessionData ?? null,
     ...opts,
   }
 }
@@ -170,9 +199,9 @@ const authMiddleware = t.middleware(async ({ next, ctx }) => {
     })
   }
 
-  return next({
+  return await next({
     ctx: {
-      session: ctx.session,
+      session: ctx.session.session,
     },
   })
 })
