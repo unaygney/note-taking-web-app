@@ -6,12 +6,17 @@ categorize notes efficiently with features like searching, archiving, and
 filtering by tags. Built with modern technologies, it offers a seamless
 experience across devices.
 
+## Screenshot
+
+![Preview](./public/preview.jpg)
+
+---
+
 ---
 
 ## Table of Contents
 
 - [The Challenge](#the-challenge)
-- [Screenshot](#screenshot)
 - [Links](#links)
 - [My Process](#my-process)
   - [Built With](#built-with)
@@ -37,12 +42,6 @@ Users can:
 - Navigate the app and perform all actions with **keyboard accessibility**.
 - Experience a responsive layout that adapts to their device's screen size.
 - See hover and focus states for all interactive elements.
-
----
-
-## Screenshot
-
-![Preview](./public/preview.jpg)
 
 ---
 
